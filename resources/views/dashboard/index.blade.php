@@ -1,8 +1,11 @@
+<!-- Vista: Dashboard principal. Muestra métricas, gráficos y accesos rápidos a los módulos principales. -->
 @extends('layouts.app')
 
 @section('content')
 <div class="container">
+    <!-- Título del panel -->
     <h1 class="mb-4">Panel de Administración</h1>
+    <!-- Métricas principales: clientes, OTs y ingresos -->
     <div class="row mb-4">
         <div class="col-md-4">
             <div class="card text-white bg-primary mb-3">
@@ -29,6 +32,7 @@
             </div>
         </div>
     </div>
+    <!-- Gráfico de ingresos y últimas OTs -->
     <div class="row mb-4">
         <div class="col-md-8">
             <div class="card mb-3">
@@ -43,6 +47,7 @@
                 <div class="card-body">
                     <h5 class="card-title">Últimas 5 OTs</h5>
                     <ul class="list-group">
+                        <!-- Listado de las últimas órdenes de trabajo -->
                         @foreach($lastWorkOrders as $wo)
                             <li class="list-group-item">#{{ $wo->id }} - {{ $wo->status }} - {{ $wo->created_at->format('d/m/Y') }}</li>
                         @endforeach
@@ -51,12 +56,14 @@
             </div>
         </div>
     </div>
+    <!-- Accesos rápidos a creación de entidades -->
     <div class="mb-4">
         <a href="{{ route('clients.create') }}" class="btn btn-outline-primary">Crear Cliente</a>
         <a href="{{ route('work-orders.create') }}" class="btn btn-outline-success">Nueva OT</a>
         <a href="{{ route('quotes.create') }}" class="btn btn-outline-info">Nuevo Presupuesto</a>
     </div>
 </div>
+<!-- Script para el gráfico de ingresos -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     const ctx = document.getElementById('incomeChart').getContext('2d');
