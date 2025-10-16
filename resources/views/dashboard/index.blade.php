@@ -1,89 +1,103 @@
-<!-- Vista: Dashboard principal. Muestra métricas, gráficos y accesos rápidos a los módulos principales. -->
+<!-- Vista: Dashboard principal. Muestra métricas y accesos rápidos a los módulos principales. -->
 @extends('layouts.app')
 
 @section('content')
 <div class="container">
+    <style>
+        /* Cards pastel y botones modernos */
+        .card-custom-blue {
+            background: #e3f2fd;
+            color: #263238;
+            border: none;
+        }
+        .card-custom-green {
+            background: #e8f5e9;
+            color: #263238;
+            border: none;
+        }
+        .card-custom-cyan {
+            background: #e0f7fa;
+            color: #263238;
+            border: none;
+        }
+        .btn-custom-blue {
+            background: #1976d2;
+            color: #fff;
+            border: none;
+        }
+        .btn-custom-blue:hover {
+            background: #1565c0;
+            color: #fff;
+        }
+        .btn-custom-green {
+            background: #388e3c;
+            color: #fff;
+            border: none;
+        }
+        .btn-custom-green:hover {
+            background: #2e7d32;
+            color: #fff;
+        }
+        .btn-custom-cyan {
+            background: #0288d1;
+            color: #fff;
+            border: none;
+        }
+        .btn-custom-cyan:hover {
+            background: #0277bd;
+            color: #fff;
+        }
+    </style>
     <!-- Título del panel -->
     <h1 class="mb-4">Panel de Administración</h1>
-    <!-- Métricas principales: clientes, OTs y ingresos -->
+    <!-- Métricas principales: OTs en proceso y presupuestos pendientes -->
     <div class="row mb-4">
         <div class="col-md-4">
-            <div class="card text-white bg-primary mb-3">
+            <div class="card card-custom-blue mb-3 shadow-sm">
                 <div class="card-body">
-                    <h5 class="card-title">Clientes registrados</h5>
-                    <p class="card-text display-4">{{ $totalClients }}</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card text-white bg-warning mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">OTs en proceso</h5>
+                    <h5 class="card-title">Orden en proceso</h5>
                     <p class="card-text display-4">{{ $totalWorkOrders }}</p>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card text-white bg-success mb-3">
+            <div class="card card-custom-cyan mb-3 shadow-sm">
                 <div class="card-body">
-                    <h5 class="card-title">Ingresos del mes</h5>
-                    <p class="card-text display-4">${{ number_format($monthlyIncome, 2) }}</p>
+                    <h5 class="card-title">Presupuestos pendientes</h5>
+                    <p class="card-text display-4">{{ $pendingQuotes }}</p>
                 </div>
             </div>
         </div>
     </div>
-    <!-- Gráfico de ingresos y últimas OTs -->
+    <!-- Accesos rápidos a creación de entidades con botones personalizados -->
+    <div class="mb-4 d-flex gap-2">
+        <!-- Botón Bootstrap para crear cliente -->
+        <a href="{{ route('clients.create') }}" class="btn btn-custom-blue px-4 py-2 rounded">
+            <i class="bi bi-person-plus"></i> Crear Cliente
+        </a>
+        <!-- Botón Bootstrap para nueva OT -->
+        <a href="{{ route('work-orders.create') }}" class="btn btn-custom-green px-4 py-2 rounded">
+            <i class="bi bi-wrench"></i> Nueva OT
+        </a>
+        <!-- Botón Bootstrap para nuevo presupuesto -->
+        <a href="{{ route('quotes.create') }}" class="btn btn-custom-cyan px-4 py-2 rounded">
+            <i class="bi bi-file-earmark-text"></i> Nuevo Presupuesto
+        </a>
+    </div>
+    <!-- Panel para agregar usuarios -->
     <div class="row mb-4">
-        <div class="col-md-8">
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Ingresos últimos 6 meses</h5>
-                    <canvas id="incomeChart"></canvas>
+        <div class="col-md-6 mx-auto">
+            <div class="card card-custom-green shadow-sm">
+                <div class="card-body text-center">
+                    <h5 class="card-title mb-3"><i class="bi bi-person-plus"></i> Agregar Usuario</h5>
+                    <a href="{{ route('users.create') }}" class="btn btn-custom-green px-4 py-2 rounded">
+                        <i class="bi bi-person-plus"></i> Nuevo Usuario
+                    </a>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Últimas 5 OTs</h5>
-                    <ul class="list-group">
-                        <!-- Listado de las últimas órdenes de trabajo -->
-                        @foreach($lastWorkOrders as $wo)
-                            <li class="list-group-item">#{{ $wo->id }} - {{ $wo->status }} - {{ $wo->created_at->format('d/m/Y') }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Accesos rápidos a creación de entidades -->
-    <div class="mb-4">
-        <a href="{{ route('clients.create') }}" class="btn btn-outline-primary">Crear Cliente</a>
-        <a href="{{ route('work-orders.create') }}" class="btn btn-outline-success">Nueva OT</a>
-        <a href="{{ route('quotes.create') }}" class="btn btn-outline-info">Nuevo Presupuesto</a>
     </div>
 </div>
-<!-- Script para el gráfico de ingresos -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    const ctx = document.getElementById('incomeChart').getContext('2d');
-    const incomeChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: {!! json_encode(array_keys($incomeByMonth->toArray())) !!},
-            datasets: [{
-                label: 'Ingresos',
-                data: {!! json_encode(array_values($incomeByMonth->toArray())) !!},
-                backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            scales: {
-                y: { beginAtZero: true }
-            }
-        }
-    });
-</script>
+<!-- Iconos Bootstrap (opcional, si quieres íconos en los botones) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 @endsection

@@ -19,6 +19,8 @@ class DashboardController extends Controller
             ->take(6)
             ->pluck('total', 'month')
             ->reverse();
-        return view('dashboard.index', compact('totalClients', 'totalWorkOrders', 'monthlyIncome', 'lastWorkOrders', 'incomeByMonth'));
+        // Recuento de presupuestos pendientes
+        $pendingQuotes = \App\Models\Quote::where('status', 'pendiente')->count();
+        return view('dashboard.index', compact('totalClients', 'totalWorkOrders', 'monthlyIncome', 'lastWorkOrders', 'incomeByMonth', 'pendingQuotes'));
     }
 }
